@@ -1,0 +1,125 @@
+'''
+    Filename:Sand Project
+    Author:William Ingwerson
+    Date:1/22/2023
+    Course:COMP 1352
+    Assignment:Project 3
+    Collaborators:None
+    Internet Source:None'''
+import dudraw
+import random
+#class for all of my sand stuff
+class Sand:
+    #all the parameters
+    def __init__(self,height=150,width=150,
+    cells=[[0 for i in range(150)]for j in range(150)],
+    black_cells=[[0 for i in range(150)]for j in range(150)],water_cells=[[0 for i in range(150)]for j in range(150)]):
+        self.height=height
+        self.width=width
+        self.cells=cells
+        self.black_cells=black_cells
+        self.water_cells=water_cells
+        #just basic setup for dudraw
+        dudraw.set_canvas_size(600,600)
+        dudraw.set_x_scale(0,self.width)
+        dudraw.set_y_scale(0,self.height)
+        dudraw.clear_rgb(77,195,255)
+    #method for drawing the sad        
+    def draw_sand(self):
+        for r in range(self.height):
+            for c in range(self.width):
+                if self.cells[r][c]==1:
+                        dudraw.set_pen_color_rgb(237,201,175)
+                        dudraw.filled_rectangle(c+0.5,r+0.5,0.5,0.5)        
+    #method for the sand falling
+    def sand_fall(self):        
+        for r in range(self.height):
+            for c in range(self.width):
+                if r>0 and self.cells[r-1][c]!=1 and self.black_cells[r-1][c]!=1:
+                    if self.cells[r][c]==1:
+                        self.cells[r-1][c]=1
+                        self.cells[r][c]=0
+    #method for the sand balancing itself        
+    def sand_balance(self):
+        x=random.randint(1,2)
+        for r in range(self.height):
+            for c in range(self.width):
+                if r>0 and c>=1 and c<149 and self.cells[r][c]==1 and self.cells[r-1][c]==1:
+                    if x==1 and self.cells[r-1][c-1]!=1 and self.black_cells[r-1][c-1]!=1 and self.water_cells[r-1][c-1]!=1:
+                        self.cells[r-1][c-1]=1
+                        self.cells[r][c]=0
+                    elif x==2 and self.cells[r-1][c+1]!=1 and self.black_cells[r-1][c+1]!=1 and self.water_cells[r-1][c+1]!=1:
+                        self.cells[r-1][c+1]=1
+                        self.cells[r][c]=0
+    #method for the rain falling                    
+    def rain_fall(self):        
+        for r in range(self.height):
+            for c in range(self.width):
+                if r>0 and self.water_cells[r-1][c]!=1 and self.cells[r-1][c]!=1 and self.black_cells[r-1][c]!=1:
+                    if self.water_cells[r][c]==1:
+                        self.water_cells[r-1][c]=1
+                        self.water_cells[r][c]=0
+    #method for the rain balancing itself                     
+    def rain_balance(self):
+        x=random.randint(1,2)
+        for r in range(self.height):
+            for c in range(self.width):
+                if r>0 and c>=1 and c<149 and self.water_cells[r][c]==1 and self.water_cells[r-1][c]==1:
+                    if x==1 and (self.water_cells[r][c-1]!=1 and self.cells[r][c-1]!=1 and self.black_cells[r][c-1]!=1):
+                        self.water_cells[r][c-1]=1
+                        self.water_cells[r][c]=0
+                    elif x==2 and (self.water_cells[r][c+1]!=1 and self.cells[r][c+1]!=1 and self.black_cells[r][c+1]!=1):
+                        self.water_cells[r][c+1]=1
+                        self.water_cells[r][c]=0
+    #method for drawing the rain    
+    def draw_rain(self):
+        for r in range(self.height):
+            for c in range(self.width):
+                if self.water_cells[r][c]==1:
+                        dudraw.set_pen_color_rgb(0,128,255)
+                        dudraw.filled_rectangle(c+0.5,r+0.5,0.5,0.5)
+    #method for determining where the rain is                                   
+    def user_rain(self):
+        if dudraw.mouse_is_pressed():
+            if dudraw.mouse_x()>4 and dudraw.mouse_x()<=145 and dudraw.mouse_y()>2 and dudraw.mouse_y()<150:
+                for i in range(random.randint(1,2)):
+                    self.water_cells[int(dudraw.mouse_y())+random.randrange(-2,1)][int(dudraw.mouse_x())+random.randrange(-5,5)]=1
+    #this draws the floor
+    def draw_floor(self):
+            for r in range(self.height):
+                for c in range(self.width):
+                    if self.black_cells[r][c]==1:
+                        dudraw.set_pen_color_rgb(0,0,0)
+                        dudraw.filled_rectangle(c+0.5,r+0.5,0.5,0.5)
+    #uses user input to draw the floor                     
+    def user_floor(self):
+        if dudraw.mouse_is_pressed():             
+               self.black_cells[int(dudraw.mouse_y())][int(dudraw.mouse_x())]=1   
+
+    #uses user input to draw sand
+    def user_sand(self):                                          
+        if dudraw.mouse_is_pressed():
+            if dudraw.mouse_x()>4 and dudraw.mouse_x()<=145 and dudraw.mouse_y()>2 and dudraw.mouse_y()<150:
+                for i in range(random.randint(1,2)):
+                    self.cells[int(dudraw.mouse_y())+random.randrange(-2,1)][int(dudraw.mouse_x())+random.randrange(-5,5)]=1
+key=''
+sand=Sand()
+#just how i get this all to animate
+while key!='q':
+    if dudraw.has_next_key_typed():
+        key=dudraw.next_key_typed()
+    dudraw.clear_rgb(77,195,255)
+    sand.draw_sand()
+    sand.draw_floor()
+    sand.draw_rain()
+    sand.sand_fall()
+    sand.rain_fall()
+    if key=='s' or key=='':
+       sand.user_sand()
+    elif key=='f':
+        sand.user_floor()
+    elif key=='r':
+        sand.user_rain()    
+    dudraw.show()
+    sand.sand_balance()
+    sand.rain_balance()
